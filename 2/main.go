@@ -28,6 +28,33 @@ func isSequenceSafe(isDecreasing bool, currentLevel int, previousLevel int) bool
 	return difference <= 3
 }
 
+func remove(slice []string, index int) []string {
+	return append(slice[:index], slice[index+1:]...)
+}
+
+func areLevelsSafe(initialLevels []string, currentLevels []string, indexTry int) bool {
+	isSafe := true
+	previousLevel, _ := strconv.Atoi(currentLevels[0])
+	secondLevel, _ := strconv.Atoi(currentLevels[1])
+	isDecreasing := secondLevel < previousLevel
+
+	for levelIndex := 1; levelIndex < len(currentLevels); levelIndex++ {
+		currentLevel, _ := strconv.Atoi(currentLevels[levelIndex])
+		isSafe = isSequenceSafe(isDecreasing, currentLevel, previousLevel)
+		previousLevel = currentLevel
+		if indexTry < len(initialLevels) && !isSafe {
+			newLevels := make([]string, len(initialLevels))
+			copy(newLevels, initialLevels)
+			newLevels = remove(newLevels, indexTry)
+			return areLevelsSafe(initialLevels, newLevels, indexTry+1)
+		}
+		if !isSafe {
+			break
+		}
+	}
+	return isSafe
+}
+
 func main() {
 	file, _ := os.Open("./input.txt")
 	fileConverted, _ := io.ReadAll(file)
@@ -37,18 +64,7 @@ func main() {
 	safeCount := 0
 	for index := 0; index < len(reports)-1; index++ {
 		levelsByReport := strings.Split(reports[index], " ")
-		isSafe := true
-		previousLevel, _ := strconv.Atoi(levelsByReport[0])
-		secondLevel, _ := strconv.Atoi(levelsByReport[1])
-		isDecreasing := secondLevel < previousLevel
-		for levelIndex := 1; levelIndex < len(levelsByReport); levelIndex++ {
-			currentLevel, _ := strconv.Atoi(levelsByReport[levelIndex])
-			isSafe = isSequenceSafe(isDecreasing, currentLevel, previousLevel)
-			previousLevel = currentLevel
-			if !isSafe {
-				break
-			}
-		}
+		isSafe := areLevelsSafe(levelsByReport, levelsByReport, 0)
 		if isSafe {
 			safeCount++
 		}
