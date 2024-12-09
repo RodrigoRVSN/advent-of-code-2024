@@ -13,8 +13,11 @@ func main() {
 	fileConverted, _ := io.ReadAll(file)
 	fileContent := string(fileConverted)
 
+	regexClean := regexp.MustCompile(`don't\(\).*?do\(\)`)
+	cleanText := regexClean.ReplaceAllString(fileContent, "")
+
 	regex := regexp.MustCompile(`mul\(\s*(\d+)\s*,\s*(\d+)\s*\)`)
-	matches := regex.FindAllStringSubmatch(fileContent, -1)
+	matches := regex.FindAllStringSubmatch(cleanText, -1)
 	totalSum := 0
 	for index := 0; index < len(matches); index++ {
 		firstParameter, _ := strconv.Atoi(matches[index][1])
