@@ -23,19 +23,14 @@ func locationHasXmas(splittedByLine []string, y int, x int, dy int, dx int) bool
 	return true
 }
 
-func main() {
-	file, _ := os.Open("./input.txt")
-	fileConverted, _ := io.ReadAll(file)
-	fileContent := string(fileConverted)
-	splittedByLine := strings.Split(fileContent, "\n")
-
+func getXmasCount(lines []string) int {
 	xmasCount := 0
-	for y, line := range splittedByLine {
+	for y, line := range lines {
 		for x, character := range line {
 			if character == 'X' {
 				for _, dy := range [3]int{-1, 0, 1} {
 					for _, dx := range [3]int{-1, 0, 1} {
-						if locationHasXmas(splittedByLine, y, x, dy, dx) {
+						if locationHasXmas(lines, y, x, dy, dx) {
 							xmasCount++
 						}
 					}
@@ -43,5 +38,46 @@ func main() {
 			}
 		}
 	}
-	fmt.Println("Total Count:", xmasCount)
+	return xmasCount
+}
+
+func locationHasCrossedMas(lines []string, y int, x int) bool {
+	if y-1 < 0 || x-1 < 0 || y+1 >= len(lines)-1 || x+1 >= len(lines[0]) {
+		return false
+	}
+
+	ulbr := string(lines[y-1][x-1]) + string(lines[y+1][x+1])
+	if ulbr != "MS" && ulbr != "SM" {
+		return false
+	}
+
+	urbl := string(lines[y-1][x+1]) + string(lines[y+1][x-1])
+	if urbl != "MS" && urbl != "SM" {
+		return false
+	}
+	return true
+}
+
+func getCrossedMasCount(lines []string) int {
+	xmasCount := 0
+	for y, line := range lines {
+		for x, character := range line {
+			if character == 'A' {
+				if locationHasCrossedMas(lines, y, x) {
+					xmasCount++
+				}
+			}
+		}
+	}
+	return xmasCount
+}
+
+func main() {
+	file, _ := os.Open("./input.txt")
+	fileConverted, _ := io.ReadAll(file)
+	fileContent := string(fileConverted)
+	lines := strings.Split(fileContent, "\n")
+
+	fmt.Println("Total Count of Xmas: ", getXmasCount(lines))
+	fmt.Println("Total Count of Crossed Mas: ", getCrossedMasCount(lines))
 }
